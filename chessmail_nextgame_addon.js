@@ -32,8 +32,28 @@ function blurElement(element, size)
 }
 
 (function(){
+
+    var lsKey = "cm-auto-next-game";
+    if (!localStorage.getItem(lsKey))
+    {
+        localStorage.setItem(lsKey, "false");
+    }
+    var autoNextGameActive = (localStorage.getItem(lsKey) === "true");
+
+    $("li.list-inline-item").first().clone().insertBefore($("li.list-inline-item").first()).children().remove();
+    $("li.list-inline-item").first().append("<input type='checkbox' id='autoNextGame'/><label for='autoNextGame'>Automatisch zur nächsten Partie</label>");
+    $("#autoNextGame").prop("checked", autoNextGameActive);
+
+    $("#autoNextGame").change(function(){
+        localStorage.setItem(lsKey, this.checked.toString());
+        autoNextGameActive = this.checked;
+
+        if (autoNextGameActive && $("li.next-game").length > 0)
+            $("ul.list-actions.mb-4").trigger("DOMNodeInserted");
+    });
+
     $("ul.list-actions.mb-4").on("DOMNodeInserted", function(event) {
-        if ($("li.next-game").length > 0)
+        if (autoNextGameActive && $("li.next-game").length > 0)
         {
             var nextGame = $("li.next-game").children().first();
             nextGame.removeAttr("href");
